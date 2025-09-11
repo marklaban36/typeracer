@@ -16,10 +16,30 @@ const sampleTexts = {
     ]
 };
 
+function renderSampleTextWithFeedback() {
+    const sampleText = document.getElementById('sample-text').getAttribute('data-original') || document.getElementById('sample-text').textContent;
+    const userInput = document.getElementById('user-input').value;
+    const sampleWords = sampleText.trim().split(/\s+/);
+    const userWords = userInput.trim().split(/\s+/);
+
+    let html = '';
+    for (let i = 0; i < sampleWords.length; i++) {
+        let colorClass = '';
+        if (userWords[i] !== undefined) {
+            colorClass = sampleWords[i] === userWords[i] ? 'word-correct' : 'word-incorrect';
+        }
+        html += `<span class="${colorClass}">${sampleWords[i]}</span> `;
+    }
+    document.getElementById('sample-text').innerHTML = html.trim();
+    document.getElementById('sample-text').setAttribute('data-original', sampleText);
+}
+
 function setRandomSampleText(difficulty) {
     const texts = sampleTexts[difficulty];
     const randomText = texts[Math.floor(Math.random() * texts.length)];
-    document.getElementById('sample-text').textContent = randomText;
+    const sampleTextElem = document.getElementById('sample-text');
+    sampleTextElem.textContent = randomText;
+    sampleTextElem.setAttribute('data-original', randomText);
     document.getElementById('level').textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
 }
 
@@ -46,6 +66,7 @@ function startTest() {
     userInput.disabled = false; // Enable input when test starts
     userInput.focus();
     document.getElementById('time').textContent = '0';
+    renderSampleTextWithFeedback(); // Show initial sample text with no highlights
 }
 
 function calculateCorrectWords(sample, userInput) {
@@ -66,7 +87,7 @@ function stopTest() {
         const elapsedSeconds = ((endTime - startTime) / 1000).toFixed(2);
         document.getElementById('time').textContent = elapsedSeconds;
 
-        const sampleText = document.getElementById('sample-text').textContent;
+        const sampleText = document.getElementById('sample-text').getAttribute('data-original') || document.getElementById('sample-text').textContent;
         const userInput = document.getElementById('user-input').value;
         const correctWords = calculateCorrectWords(sampleText, userInput);
 
@@ -82,7 +103,13 @@ function stopTest() {
     document.getElementById('start-btn').disabled = false;
     document.getElementById('stop-btn').disabled = true;
     document.getElementById('user-input').disabled = true; // Disable input when test stops
+    renderSampleTextWithFeedback(); // Show final highlights
 }
+
+// Add event listener for real-time feedback
+document.getElementById('user-input').addEventListener('input', function() {
+    renderSampleTextWithFeedback();
+});
 
 function setupTestButtons() {
     document.getElementById('start-btn').addEventListener('click', startTest);

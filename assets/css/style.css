@@ -40,3 +40,13 @@ header {
     font-size: 1.1rem;
     margin-bottom: 5px;
 }
+
+.word-correct {
+    color: #007bff; 
+    font-weight: bold;
+}
+
+.word-incorrect {
+    color: #dc3545; 
+    font-weight: bold;
+}
